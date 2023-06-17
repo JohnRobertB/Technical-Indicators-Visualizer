@@ -2,7 +2,7 @@ import tkinter as tk
 from Stocks import InvestmentAnalyzer
 from Fundamental_analysis import FundamentalAnalyzer
 import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 
 
 class UserInterface:
@@ -54,7 +54,7 @@ class UserInterface:
         new_window.title("Analysis Results")
 
         # Use matplotlib to create the graphs
-        fig, axs = plt.subplots(10, 1, figsize=(5, 50))  # Create 10 subplots
+        fig, axs = plt.subplots(10, 1, figsize=(10, 30))  # Create 10 subplots
 
         # Create a graph for each fundamental analysis result
         for i, column in enumerate(fundamental_results.columns):
@@ -88,7 +88,17 @@ class UserInterface:
         # Create a canvas to display the graphs
         canvas = FigureCanvasTkAgg(fig, master=new_window)  # A tk.DrawingArea.
         canvas.draw()
-        canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+
+        # Add a scrollbar
+        scroll = tk.Scrollbar(new_window, command=canvas.get_tk_widget().yview)
+        canvas.get_tk_widget().configure(yscrollcommand=scroll.set)
+        scroll.pack(side=tk.RIGHT, fill=tk.Y)
+        canvas.get_tk_widget().pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        # Add navigation toolbar
+        toolbar = NavigationToolbar2Tk(canvas, new_window)
+        toolbar.update()
+        canvas.get_tk_widget().pack()
 
         # Display the new window
         new_window.mainloop()
