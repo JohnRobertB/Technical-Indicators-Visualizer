@@ -12,7 +12,7 @@ class UserInterface:
         self.root.geometry("1600x900")
 
         # List of default stocks
-        default_stocks = ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA"]
+        default_stocks = ["SOL.JO", "MSFT", "GOOGL", "AMZN", "TSLA"]
 
         # Create a Listbox for the default stocks
         self.listbox = tk.Listbox(root, selectmode=tk.MULTIPLE)
@@ -30,10 +30,25 @@ class UserInterface:
         self.ticker_entry = tk.Entry(root)
         self.ticker_entry.pack()
 
+        # Create a button to add stocks to the list
+        add_button = tk.Button(root, text="Add Stock", command=self.add_stock)
+        add_button.pack()
+
         # Create a button to start the analysis
         button = tk.Button(root, text="Analyze", command=self.analyze)
 
         button.pack()
+
+    def add_stock(self):
+        # Get the stock ticker from the entry field
+        stock = self.ticker_entry.get().strip()
+
+        # Add the stock to the listbox
+        if stock:
+            self.listbox.insert(tk.END, stock)
+
+        # Clear the entry field
+        self.ticker_entry.delete(0, tk.END)
 
     def analyze(self):
         # Get selected stocks from the Listbox
@@ -73,7 +88,7 @@ class UserInterface:
         # For each stock, create graphs and a table
         for ticker in tickers:
             # Use matplotlib to create the graphs
-            fig, axs = plt.subplots(3, 1, figsize=(10, 15))  # Create 3 subplots
+            fig, axs = plt.subplots(4, 1, figsize=(10, 15))  # Create 3 subplots
 
             # Create a graph for the investment analysis results
             axs[0].plot(investment_analyzer.hist[ticker].index, investment_analyzer.hist[ticker]['Close'], label=ticker)
@@ -156,11 +171,25 @@ class UserInterface:
             # Annotate the last crossover at the top right corner of the graph
             if last_crossover is not None:
                 color = 'green' if last_crossover_type == 'Buy' else 'red'
-                axs[2].text(1, 1.065, f'Last Signal: {last_crossover_type}', color=color, fontsize=10,
+                axs[2].text(1, 1.065, f'Last Signal: {last_crossover_type} ({last_crossover.strftime("%Y-%m-%d")})',
+                            color=color, fontsize=10,
                             ha='right', va='top', transform=axs[2].transAxes)
 
             axs[2].set_title(f"{ticker} MACD")
             axs[2].legend()
+
+            # Create the Stochastic Oscillator graph
+            axs[3].plot(investment_analyzer.stoch[ticker].index, investment_analyzer.stoch[ticker]['STOCHk_14_3_3'],
+                        label='K Line', color='blue')
+            axs[3].plot(investment_analyzer.stoch[ticker].index, investment_analyzer.stoch[ticker]['STOCHd_14_3_3'],
+                        label='D Line', color='red')
+
+            # Add horizontal lines at 80 and 20
+            axs[3].axhline(80, color='gray', linestyle='dashed', alpha=0.6, label='Overbought (80)')
+            axs[3].axhline(20, color='gray', linestyle='dashed', alpha=0.6, label='Oversold (20)')
+
+            axs[3].set_title(f"{ticker} Stochastic Oscillator")
+            axs[3].legend()
 
             # Add the figure to the canvas
             canvas_fig = FigureCanvasTkAgg(fig, master=frame)
