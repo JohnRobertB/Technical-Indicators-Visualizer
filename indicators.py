@@ -11,6 +11,7 @@ class InvestmentAnalyzer:
         self.hist = {}
         self.rsi = {}
         self.macd = {}
+        self.stoch = {}
 
     def calculate_sma(self, data, window):
         return data.rolling(window=window).mean()
@@ -30,6 +31,10 @@ class InvestmentAnalyzer:
 
         # Calculate the MACD
         self.macd[ticker] = ta.macd(hist['Close'])
+
+        # Calculate the Stochastic Oscillator
+        stoch = ta.stoch(hist['High'], hist['Low'], hist['Close'])
+        self.stoch[ticker] = stoch
 
         return None
 
