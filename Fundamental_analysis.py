@@ -41,6 +41,7 @@ class FundamentalAnalyzer:
                 if result is not None:
                     results = results._append(result)
 
+
         return results
 
 
